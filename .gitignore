@@ -1,0 +1,22 @@
+# Python & general
+.env
+.venv
+*/storage
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+# SQLLITE
+file_metadata.sqlite
+# Postgres
+pgdata/
+# REDIS
+valkey/
+dump.rdb
+# etcd
+etcd_data/
+# apisix
+apisix/logs/
+# Alembic - SQL migrations
+alembic.ini
+alembic/
