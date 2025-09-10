@@ -8,12 +8,12 @@ settings = config.settings
 # Async engine for FastAPI
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=True,  # Set to False in production
+    echo=settings.SQL_LOG,  # Set to False in production
     future=True
 )
 
 AsyncSessionLocal = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
+    engine, class_= AsyncSession, expire_on_commit=False
 )
 
 Base = declarative_base()

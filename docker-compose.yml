@@ -1,22 +1,22 @@
 services:
   # FastAPI Application
-  app:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-    container_name: app
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./app:/app
-    depends_on:
-      - postgres
-      - valkey
-      - apisix
-    networks:
-      mynetwork:
-        ipv4_address: 172.30.0.10
-    restart: unless-stopped
+  # app:
+  #   build:
+  #     context: ./app
+  #     dockerfile: Dockerfile
+  #   container_name: app
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./app:/app
+  #   depends_on:
+  #     - postgres
+  #     - valkey
+  #     - apisix
+  #   networks:
+  #     mynetwork:
+  #       ipv4_address: 172.30.0.10
+  #   restart: unless-stopped
   
   postgres:
     image: postgres:17.6-alpine

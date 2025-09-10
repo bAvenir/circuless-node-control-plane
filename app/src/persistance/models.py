@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.declarative import declarative_base
 from pydantic import BaseModel
@@ -13,6 +13,8 @@ class ThingDescriptionDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     oid = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False, index=True)
     td = Column(JSONB, nullable=False)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
 # Pydantic models for API
 class ThingDescription(BaseModel):

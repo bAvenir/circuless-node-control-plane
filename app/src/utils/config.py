@@ -13,6 +13,12 @@ class Settings(BaseSettings):
     APP_NAME: str = "FastAPI Microservice"
     APP_VERSION: str = "0.0.1"
     APP_PORT: int = 3000
+    APP_ENV: str = "DEV"
     DATABASE_URL: str
+    START_UP_SECRET: str
+
+    @property
+    def SQL_LOG(self) -> bool:
+        return self.APP_ENV.upper() == "DEV" 
 
 settings = Settings()

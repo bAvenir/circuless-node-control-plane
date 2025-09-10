@@ -1,30 +1,38 @@
-import sys
 import logging
+import sys
 
+class ColorfulLevelnameFormatter(logging.Formatter):
+    # ANSI escape codes for background colors
+    BG_COLORS = {
+        "DEBUG": "\033[44m",    # Blue background
+        "INFO": "\033[42m",     # Green background
+        "WARNING": "\033[43m",  # Yellow background
+        "ERROR": "\033[41m",    # Red background
+        "CRITICAL": "\033[45m", # Magenta background
+    }
+    RESET = "\033[0m"
 
-class MyLogger:
-    def __init__(self, name):
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.DEBUG)
-
-        stream_handler = logging.StreamHandler(sys.stderr)
-        formatter = logging.Formatter(
-            fmt='%(asctime)s - %(levelname)s - {%(module)s:%(lineno)d} - %(message)s'
-        )
-        stream_handler.setFormatter(formatter)
-
-        stream_handler.setLevel(logging.DEBUG)
-        self.logger.addHandler(stream_handler)
-        # self.logger.propagate = False
-
-    def info(self, message):
-        self.logger.info("{}".format(message))
+    def format(self, record):
+        levelname = record.levelname
+        bg_color = self.BG_COLORS.get(levelname, "")
+        colored_levelname = f"{bg_color}{" " + levelname + " "}{self.RESET}"
+        record.levelname = colored_levelname
+        return super().format(record)
     
-    def warn(self, message):
-        self.logger.warn("{}".format(message))
-    
-    def error(self, message):
-        self.logger.error("{}".format(message))
-    
-    def debug(self, message):
-        self.logger.debug("{}".format(message))
+def get_logger(name: str = __name__) -> logging.Logger:
+    logger = logging.getLogger(name)
+    if not logger.hasHandlers():
+        logger.setLevel(logging.DEBUG)  # Application-wide level
+
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.DEBUG)
+        formatter = ColorfulLevelnameFormatter('     %(levelname)s %(asctime)s - %(name)s:%(lineno)d - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+    # Reduce SQLAlchemy verbosity here
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.dialects").setLevel(logging.WARNING)
+
+    return logger
