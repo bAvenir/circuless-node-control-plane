@@ -1,13 +1,13 @@
 import uuid
+import logging
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from persistance.database import get_db
 from persistance.models import ThingDescriptionCreate, ThingDescriptionResponse
 from persistance.crud import ThingDescriptionCRUD
-from utils.logs import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/api/v1",

@@ -7,7 +7,7 @@ from utils.lifecycle import initialize
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup code — runs before the app starts handling requests
-    initialize()
+    await initialize()
     yield
     # Shutdown code — runs when the app is shutting down
     print("Lifespan shutdown: cleaning up resources")
