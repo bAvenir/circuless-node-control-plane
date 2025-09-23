@@ -20,3 +20,5 @@ apisix/logs/
 # Alembic - SQL migrations
 alembic.ini
 alembic/
+# Certificates
+*.pem
