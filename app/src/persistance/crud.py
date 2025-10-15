@@ -5,11 +5,14 @@ from sqlalchemy import update, delete
 from typing import List, Optional
 from persistance import models
 
+URN = "urn:circ:<org>:wot:<uuid>"
+
 class ThingDescriptionCRUD:
     
     @staticmethod
     async def create(db: AsyncSession, td_data: dict) -> models.ThingDescriptionDB:
         """Create a new Thing Description"""
+
         oid=uuid.uuid4()
         td=td_data
         td['oid']=str(oid)

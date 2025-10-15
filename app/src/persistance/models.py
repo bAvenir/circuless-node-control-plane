@@ -35,6 +35,8 @@ class ThingDescriptionCreate(BaseModel):
 class ThingDescriptionResponse(BaseModel):
     id: int
     oid: uuid.UUID
+    # owner: uuid.UUID
+    # allowed: ...
     td: Dict[str, Any]
     
     class Config:
