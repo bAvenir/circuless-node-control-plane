@@ -84,6 +84,56 @@ class CatalogResponse(BaseModel):
 
 # Test catalog request
 
+# Test dataset response
+
+class Constraint(BaseModel):
+    leftOperand: str
+    operator: str
+    rightOperand: str
+
+class Permission(BaseModel):
+    action: str
+    constraint: Optional[list[Constraint]] = None
+
+class Policy(BaseModel):
+    id: str = Field(alias="@id")
+    type: str = Field(alias="@type")
+    permission: Optional[list[Permission]] = None
+
+    class Config:
+        populate_by_name = True
+
+class DataService(BaseModel):
+    id: str = Field(alias="@id")
+    type: str = Field(alias="@type")
+    endpointURL: str
+
+    class Config:
+        populate_by_name = True
+
+
+class Distribution(BaseModel):
+    type: str = Field(alias="@type")
+    format: str
+    accessService: DataService
+
+    class Config:
+        populate_by_name = True
+
+
+class DatasetResponse(BaseModel):
+    context: list[str] = Field(alias="@context")
+    id: str = Field(alias="@id")
+    type: str = Field(alias="@type")
+    hasPolicy: Optional[list[Policy]] = None
+    distribution: Optional[list[Distribution]] = None
+
+    class Config:
+        populate_by_name = True
+
+# Test dataset response
+
+
 class JsonLdBase(BaseModel):
     """Base class for JSON-LD objects with @context, @id, @type"""
     model_config = ConfigDict(
