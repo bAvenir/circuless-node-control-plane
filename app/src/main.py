@@ -2,12 +2,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from api.routes import router as api_router
 from utils.config import settings
-from utils.lifecycle import initialize
+#from utils.lifecycle import initialize
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup code — runs before the app starts handling requests
-    await initialize()
+    # await initialize()
     yield
     # Shutdown code — runs when the app is shutting down
     print("Lifespan shutdown: cleaning up resources")

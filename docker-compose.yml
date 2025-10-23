@@ -31,7 +31,7 @@ services:
       - ./pgdata:/var/lib/postgresql/data
     networks:
       mynetwork:
-        ipv4_address: 172.30.0.2
+        ipv4_address: 172.31.5.2
 
   valkey:
     image: valkey/valkey:8.1-alpine
@@ -43,7 +43,7 @@ services:
     #   - "6379:6379"
     networks:
       mynetwork:
-        ipv4_address: 172.30.0.3
+        ipv4_address: 172.31.5.3
 
   # APISIX Gateway
   apisix:
@@ -52,7 +52,7 @@ services:
     restart: always
     volumes:
       - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:rw
-      - ./apisix/logs:/usr/local/apisix/logs
+      #- ./apisix/logs:/usr/local/apisix/logs
       # - ./data/certs:/data/certs:ro
     depends_on:
       - etcd
@@ -63,10 +63,10 @@ services:
       - "9443:9443/tcp"
     networks:
       mynetwork:
-        ipv4_address: 172.30.0.4
+        ipv4_address: 172.31.5.4
 
   etcd:
-    image: bitnami/etcd:3.6.4
+    image: bitnami/etcd:latest
     container_name: etcd
     # user: root
     restart: always
@@ -82,7 +82,7 @@ services:
     #   - "2379:2379"
     networks:
       mynetwork:
-        ipv4_address: 172.30.0.5
+        ipv4_address: 172.31.5.5
 
   # apisix-dashboard:
   #   image: apache/apisix-dashboard:3.0.1-alpine
@@ -102,7 +102,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.30.0.0/16
-          gateway: 172.30.0.1
+        - subnet: 172.31.5.0/24
+          gateway: 172.31.5.1
 
  
