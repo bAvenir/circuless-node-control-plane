@@ -10,6 +10,7 @@ from persistance.database import get_db
 from api.catalog_router import catalog_router as catalog_router
 from api.negotiation_router import negotiation_router as negotiations_router
 from api.transfers_router import transfers_router as transfers_router
+from persistance.models import VersionResponse
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,52 @@ router = APIRouter(
 router.include_router(catalog_router)
 router.include_router(negotiations_router)
 router.include_router(transfers_router)
+
+# Exposure of Versions
+
+@router.get("/.well-known/dspace-version", response_model=VersionResponse)
+async def get_dspace_version():
+    payload = {
+        "protocolVersions": [
+            {
+            "version": "2025-1",
+            "path": "/some/path/2025-1",
+            "binding": "HTTPS",
+            "serviceId": "service-asdf",
+            "identifierType": "did:web"
+            },
+            {
+            "version": "2024-1",
+            "path": "/some/path/2024-1",
+            "binding": "HTTPS",
+            "auth": {
+                "protocol": "OAuth",
+                "version": "2",
+                "profile": [
+                "authorization_code",
+                "refresh_token"
+                ]
+            },
+            "serviceId": "service-asdf",
+            "identifierType": "D-U-N-S"
+
+            },
+            {
+            "version": "2025-1",
+            "path": "/different/path/2025-1",
+            "binding": "HTTPS",
+            "auth": {
+                "protocol": "DCP",
+                "version": "1.0",
+                "profile": [
+                "vc11-sl2021/jwt"
+                ]
+            },
+            "serviceId": "service-qwerty"
+            }
+        ]
+        }
+    return payload
 
 # @router.post("/things/", response_model=ThingDescriptionResponse)
 # async def create_thing_description(

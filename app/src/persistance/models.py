@@ -7,131 +7,12 @@ from typing import Optional, List, Dict, Any, Literal, Union
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator, HttpUrl
 from datetime import datetime
 from enum import Enum
+#from catalog_models import CatalogResponse, DatasetResponse
 
 
 # ============================================================================
 # BASE MODELS - Common structures used across the protocol
 # ============================================================================
-
-
-# Test catalog request
-class Constraint(BaseModel):
-    """Reprezentuje constraint v rámci permission."""
-    leftOperand: str
-    operator: str
-    rightOperand: str
-
-
-class Permission(BaseModel):
-    """Reprezentuje permission s action a constraints."""
-    action: str
-    constraint: Optional[list[Constraint]] = None
-
-
-class Policy(BaseModel):
-    """Reprezentuje policy (Offer) s ID, type a permissions."""
-    id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
-    permission: Optional[list[Permission]] = None
-
-    class Config:
-        populate_by_name = True
-
-
-class Distribution(BaseModel):
-    """Reprezentuje distribuciu datasetu."""
-    type: str = Field(alias="@type")
-    format: str
-    accessService: str
-
-    class Config:
-        populate_by_name = True
-
-
-class Dataset(BaseModel):
-    """Reprezentuje dataset s policies a distributions."""
-    id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
-    hasPolicy: Optional[list[Policy]] = None
-    distribution: Optional[list[Distribution]] = None
-
-    class Config:
-        populate_by_name = True
-
-
-class DataService(BaseModel):
-    """Reprezentuje data service s endpoint URL."""
-    id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
-    endpointURL: str
-
-    class Config:
-        populate_by_name = True
-
-
-class CatalogResponse(BaseModel):
-    """Hlavný response model pre catalog endpoint."""
-    context: list[str] = Field(alias="@context")
-    id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
-    participantId: str
-    service: Optional[list[DataService]] = None
-    dataset: list[Dataset] = []  # Môže byť prázdny list
-
-    class Config:
-        populate_by_name = True
-
-
-# Test catalog request
-
-# Test dataset response
-
-class Constraint(BaseModel):
-    leftOperand: str
-    operator: str
-    rightOperand: str
-
-class Permission(BaseModel):
-    action: str
-    constraint: Optional[list[Constraint]] = None
-
-class Policy(BaseModel):
-    id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
-    permission: Optional[list[Permission]] = None
-
-    class Config:
-        populate_by_name = True
-
-class DataService(BaseModel):
-    id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
-    endpointURL: str
-
-    class Config:
-        populate_by_name = True
-
-
-class Distribution(BaseModel):
-    type: str = Field(alias="@type")
-    format: str
-    accessService: DataService
-
-    class Config:
-        populate_by_name = True
-
-
-class DatasetResponse(BaseModel):
-    context: list[str] = Field(alias="@context")
-    id: str = Field(alias="@id")
-    type: str = Field(alias="@type")
-    hasPolicy: Optional[list[Policy]] = None
-    distribution: Optional[list[Distribution]] = None
-
-    class Config:
-        populate_by_name = True
-
-# Test dataset response
 
 
 class JsonLdBase(BaseModel):
@@ -159,6 +40,34 @@ class JsonLdBase(BaseModel):
     )
 
 
+# Version response model
+
+
+class Auth(BaseModel):
+    """Authentication configuration for protocol version"""
+    protocol: str = Field(..., description="Authentication protocol (e.g., OAuth, DCP)")
+    version: str = Field(..., description="Protocol version")
+    profile: List[str] = Field(..., description="Supported authentication profiles")
+
+
+class ProtocolVersionResponseModel(BaseModel):
+    """Individual protocol version specification"""
+    version: Any = Field(..., description="Protocol version identifier")
+    path: str = Field(..., description="Path to the protocol endpoint")
+    binding: Literal["HTTPS"] = Field(..., description="Must be HTTPS")
+    auth: Optional[Auth] = Field(None, description="Optional authentication configuration")
+    identifierType: Optional[str] = Field(None, description="Type of identifier (e.g., did:web, D-U-N-S)")
+    serviceId: Optional[str] = Field(None, description="Service identifier")
+
+class VersionResponse(BaseModel):
+    """Dataspace Protocol Version Response"""
+    protocolVersions: List[ProtocolVersionResponseModel] = Field(
+        ..., 
+        min_length=1,
+        description="List of supported protocol versions (must contain at least one)"
+    )
+    
+    
 # ============================================================================
 # ODRL MODELS - Open Digital Rights Language structures
 # ============================================================================
@@ -325,53 +234,53 @@ class ODRLAgreement(JsonLdBase):
 # DCAT MODELS - Data Catalog Vocabulary structures
 # ============================================================================
 
-# Catalog 
-# test
-# ===== Base Model (ak ho ešte nemáš) =====
-class JsonLdBase(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="allow")
+# # Catalog 
+# # test
+# # ===== Base Model (ak ho ešte nemáš) =====
+# class JsonLdBase(BaseModel):
+#     model_config = ConfigDict(populate_by_name=True, extra="allow")
 
-# ODRL
-class Constraint(JsonLdBase):
-    left_operand: str = Field(alias="leftOperand")
-    operator: str
-    right_operand: str = Field(alias="rightOperand")
+# # ODRL
+# class Constraint(JsonLdBase):
+#     left_operand: str = Field(alias="leftOperand")
+#     operator: str
+#     right_operand: str = Field(alias="rightOperand")
 
-class Permission(JsonLdBase):
-    action: str
-    constraint: List[Constraint] = Field(default_factory=list)
+# class Permission(JsonLdBase):
+#     action: str
+#     constraint: List[Constraint] = Field(default_factory=list)
 
-class Policy(JsonLdBase):
-    id: str = Field(alias="@id")
-    type: str = Field(default="Offer", alias="@type")
-    permission: List[Permission] = Field(default_factory=list)
+# class Policy(JsonLdBase):
+#     id: str = Field(alias="@id")
+#     type: str = Field(default="Offer", alias="@type")
+#     permission: List[Permission] = Field(default_factory=list)
 
-# DCAT
-class Distribution(JsonLdBase):
-    type: str = Field(default="Distribution", alias="@type")
-    format: str
-    access_service: str = Field(alias="accessService")
+# # DCAT
+# class Distribution(JsonLdBase):
+#     type: str = Field(default="Distribution", alias="@type")
+#     format: str
+#     access_service: str = Field(alias="accessService")
 
-class DCATDatasetTest(JsonLdBase):
-    id: str = Field(alias="@id")
-    type: str = Field(default="Dataset", alias="@type")
-    has_policy: List[Policy] = Field(default_factory=list, alias="hasPolicy")
-    distribution: List[Distribution] = Field(default_factory=list)
+# class DCATDatasetTest(JsonLdBase):
+#     id: str = Field(alias="@id")
+#     type: str = Field(default="Dataset", alias="@type")
+#     has_policy: List[Policy] = Field(default_factory=list, alias="hasPolicy")
+#     distribution: List[Distribution] = Field(default_factory=list)
 
-class DCATDataServiceTest(JsonLdBase):
-    id: str = Field(alias="@id")
-    type: str = Field(default="DataService", alias="@type")
-    endpoint_url: HttpUrl = Field(alias="endpointURL")
+# class DCATDataServiceTest(JsonLdBase):
+#     id: str = Field(alias="@id")
+#     type: str = Field(default="DataService", alias="@type")
+#     endpoint_url: HttpUrl = Field(alias="endpointURL")
 
-class DCATCatalog(JsonLdBase):
-    context: List[str] = Field(alias="@context")
-    id: str = Field(alias="@id")
-    type: str = Field(default="Catalog", alias="@type")
-    participant_id: str = Field(alias="participantId")
-    service: List[DCATDataServiceTest]
-    dataset: List[DCATDatasetTest] = Field(default_factory=list)
+# class DCATCatalog(JsonLdBase):
+#     context: List[str] = Field(alias="@context")
+#     id: str = Field(alias="@id")
+#     type: str = Field(default="Catalog", alias="@type")
+#     participant_id: str = Field(alias="participantId")
+#     service: List[DCATDataServiceTest]
+#     dataset: List[DCATDatasetTest] = Field(default_factory=list)
     
-# Test instance
+# # Test instance
 
 class DCATDataService(JsonLdBase):
     """DCAT Data Service - specifies connector endpoint"""
