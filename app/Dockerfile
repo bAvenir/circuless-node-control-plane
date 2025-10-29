@@ -2,6 +2,9 @@ FROM python:3.12-alpine
 WORKDIR /code
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-COPY ./src /code/app
-COPY ./.env /code/app/.env
-CMD ["fastapi", "run", "app/main.py", "--port", "3000"]
+COPY ./src /code/src
+COPY ./migrations /code/migrations
+COPY ./.env /code/.env
+COPY ./start.sh /code/start.sh
+RUN chmod +x /code/start.sh
+CMD ["/code/start.sh"]

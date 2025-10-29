@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
@@ -27,6 +28,7 @@ class Settings(BaseSettings):
     # Loaded from certificate (IF NONE, collaborative features disabled)
     CLIENT_ID: str = ""
     DATABASE_URL: str
+    DATABASE_TABLE: str = os.getenv("DATABASE_TABLE", "items")
 
     @property
     def SQL_LOG(self) -> bool:

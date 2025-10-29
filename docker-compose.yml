@@ -1,22 +1,19 @@
 services:
   # FastAPI Application
-  # app:
-  #   build:
-  #     context: ./app
-  #     dockerfile: Dockerfile
-  #   container_name: app
-  #   ports:
-  #     - "8000:8000"
-  #   volumes:
-  #     - ./app:/app
-  #   depends_on:
-  #     - postgres
-  #     - valkey
-  #     - apisix
-  #   networks:
-  #     mynetwork:
-  #       ipv4_address: 172.30.0.10
-  #   restart: unless-stopped
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/code
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+    restart: unless-stopped
   
   postgres:
     image: postgres:17.6-alpine
@@ -33,56 +30,74 @@ services:
       mynetwork:
         ipv4_address: 172.31.5.2
 
-  valkey:
-    image: valkey/valkey:8.1-alpine
-    container_name: valkey
-    command: "valkey-server --save 60 1 --loglevel warning"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@bavenir.eu
+      PGADMIN_DEFAULT_PASSWORD: cube
+      # PGADMIN_CONFIG_SERVER_MODE: "True"
+    ports:
+      - "8080:80"
     volumes:
-      -  ./valkey:/data
-    # ports:
-    #   - "6379:6379"
+      - ./pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
     networks:
       mynetwork:
-        ipv4_address: 172.31.5.3
+        ipv4_address: 172.31.5.10
+
+  # valkey:
+  #   image: valkey/valkey:8.1-alpine
+  #   container_name: valkey
+  #   command: "valkey-server --save 60 1 --loglevel warning"
+  #   volumes:
+  #     -  ./valkey:/data
+  #   # ports:
+  #   #   - "6379:6379"
+  #   networks:
+  #     mynetwork:
+  #       ipv4_address: 172.31.5.3
 
   # APISIX Gateway
-  apisix:
-    image: "apache/apisix:3.13.0-debian"
-    container_name: apisix
-    restart: always
-    volumes:
-      - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:rw
-      #- ./apisix/logs:/usr/local/apisix/logs
-      # - ./data/certs:/data/certs:ro
-    depends_on:
-      - etcd
-    ports:
-      - "9180:9180/tcp"
-      - "9080:9080/tcp"
-      # - "9091:9091/tcp"
-      - "9443:9443/tcp"
-    networks:
-      mynetwork:
-        ipv4_address: 172.31.5.4
+  # apisix:
+  #   image: "apache/apisix:3.13.0-debian"
+  #   container_name: apisix
+  #   restart: always
+  #   volumes:
+  #     - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:rw
+  #     #- ./apisix/logs:/usr/local/apisix/logs
+  #     # - ./data/certs:/data/certs:ro
+  #   depends_on:
+  #     - etcd
+  #   ports:
+  #     - "9180:9180/tcp"
+  #     - "9080:9080/tcp"
+  #     # - "9091:9091/tcp"
+  #     - "9443:9443/tcp"
+  #   networks:
+  #     mynetwork:
+  #       ipv4_address: 172.31.5.4
 
-  etcd:
-    image: bitnami/etcd:latest
-    container_name: etcd
-    # user: root
-    restart: always
-    volumes:
-      - ./etcd_data:/bitnami/etcd/data
-    environment:
-      # ETCD_DATA_DIR: /bitnami/etcd/data
-      ETCD_ENABLE_V2: "true"
-      ALLOW_NONE_AUTHENTICATION: "yes"
-      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
-      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
-    # ports:
-    #   - "2379:2379"
-    networks:
-      mynetwork:
-        ipv4_address: 172.31.5.5
+  # etcd:
+  #   image: bitnami/etcd:latest
+  #   container_name: etcd
+  #   # user: root
+  #   restart: always
+  #   volumes:
+  #     - ./etcd_data:/bitnami/etcd/data
+  #   environment:
+  #     # ETCD_DATA_DIR: /bitnami/etcd/data
+  #     ETCD_ENABLE_V2: "true"
+  #     ALLOW_NONE_AUTHENTICATION: "yes"
+  #     ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+  #     ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+  #   # ports:
+  #   #   - "2379:2379"
+  #   networks:
+  #     mynetwork:
+  #       ipv4_address: 172.31.5.5
 
   # apisix-dashboard:
   #   image: apache/apisix-dashboard:3.0.1-alpine
@@ -105,4 +120,6 @@ networks:
         - subnet: 172.31.5.0/24
           gateway: 172.31.5.1
 
+# volumes:
+#   pgadmin_data:
  

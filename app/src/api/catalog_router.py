@@ -7,6 +7,16 @@ from pydantic import BaseModel, Field
 logger = logging.getLogger(__name__)
 catalog_router = APIRouter(prefix="/catalog", tags=["Catalog router"])
 
+# Store json in PG 
+# Define schema of database
+# alembic tool for running migrations. 
+# Check if it is possible check if db has right schema of table
+# ID , created_at, json_data (jsonb), then add updated_at
+# posting one  dataset, getting  dataset
+
+
+# Check MCP
+# create table in oracle DB using LLM and retrieve
 
 class CatalogRequestMessage(BaseModel):
     """Request model pre catalog endpoint."""
