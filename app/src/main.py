@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from api.routes import router as api_router
+from api.routes import router_api as router_main
 from utils.config import settings
 #from utils.lifecycle import initialize
 
@@ -17,11 +17,12 @@ app = FastAPI(
     title=settings.APP_NAME,
     description="CIRCULess Node Control Plane",
     version=settings.APP_VERSION,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Include API routes
-app.include_router(api_router)
+app.include_router(router_main)
+
 
 # Root endpoint for health check or basic info
 @app.get("/")

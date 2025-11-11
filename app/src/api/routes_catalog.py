@@ -1,11 +1,15 @@
 import logging
 from fastapi import APIRouter
-from persistance.catalog_models import CatalogResponse, DatasetResponse
+from persistance.models_catalog import CatalogResponse, DatasetResponse
 from pydantic import BaseModel, Field
  
  
 logger = logging.getLogger(__name__)
-catalog_router = APIRouter(prefix="/catalog", tags=["Catalog router"])
+router_catalog = APIRouter(
+    prefix="/api/v1/catalog", 
+    tags=["Catalog router"],
+    responses={404: {"description": "Not found"}}
+    )
 
 # Store json in PG 
 # Define schema of database
@@ -38,7 +42,7 @@ class DatasetRequestMessage(BaseModel):
     class Config:
         populate_by_name = True
 
-@catalog_router.post("/request/", response_model=CatalogResponse)
+@router_catalog.post("/request/", response_model=CatalogResponse)
 async def request_catalog(msg: CatalogRequestMessage):
     payload = {
         
@@ -150,7 +154,7 @@ async def request_catalog(msg: CatalogRequestMessage):
     
     
 
-@catalog_router.post("/dataset/{id}") 
+@router_catalog.post("/dataset/{id}") 
 async def query_catalog(
     id: str, msg: DatasetRequestMessage
 ):

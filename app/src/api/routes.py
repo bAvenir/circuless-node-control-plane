@@ -7,28 +7,25 @@ from typing import List
 from persistance.database import get_db
 #from persistance.models import ThingDescriptionCreate, ThingDescriptionResponse
 #from persistance.crud import ThingDescriptionCRUD
-from api.catalog_router import catalog_router as catalog_router
-from api.negotiation_router import negotiation_router as negotiations_router
-from api.transfers_router import transfers_router as transfers_router
+from api.routes_catalog import router_catalog
+from api.routes_wot import router_wot
+# from api.negotiation_router import negotiation_router as negotiations_router
+# from api.transfers_router import transfers_router as transfers_router
 from persistance.models import VersionResponse
 
 logger = logging.getLogger(__name__)
 
-
-
-router = APIRouter(
+router_api = APIRouter(
     prefix="/api/v1",
-    tags=["WoT Directory"],
     responses={404: {"description": "Not found"}}
 )
 
-router.include_router(catalog_router)
-router.include_router(negotiations_router)
-router.include_router(transfers_router)
+router_api.include_router(router_catalog)
+router_api.include_router(router_wot)
 
 # Exposure of Versions
 
-@router.get("/.well-known/dspace-version", response_model=VersionResponse)
+@router_api.get("/.well-known/dspace-version", response_model=VersionResponse, tags=["Main"])
 async def get_dspace_version():
     payload = {
         "protocolVersions": [
