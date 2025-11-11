@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
  
 logger = logging.getLogger(__name__)
 router_catalog = APIRouter(
-    prefix="/api/v1/catalog", 
+    prefix="/catalog", 
     tags=["Catalog router"],
     responses={404: {"description": "Not found"}}
     )

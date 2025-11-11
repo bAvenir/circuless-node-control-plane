@@ -10,7 +10,7 @@ from persistance.crud_wot import ThingDescriptionCRUD
 logger = logging.getLogger(__name__)
 
 router_wot = APIRouter(
-    prefix="/api/v1/things",
+    prefix="/things",
     tags=["WoT Directory"],
     responses={404: {"description": "Not found"}}
 )
