@@ -1,19 +1,19 @@
 services:
   # FastAPI Application
-  app:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-    container_name: app
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./app:/code
-    depends_on:
-      - postgres
-    networks:
-      - mynetwork
-    restart: unless-stopped
+  # app:
+  #   build:
+  #     context: ./app
+  #     dockerfile: Dockerfile
+  #   container_name: app
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./app:/code
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - mynetwork
+  #   restart: unless-stopped
   
   postgres:
     image: postgres:17.6-alpine
@@ -29,24 +29,6 @@ services:
     networks:
       mynetwork:
         ipv4_address: 172.31.5.2
-
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@bavenir.eu
-      PGADMIN_DEFAULT_PASSWORD: cube
-      # PGADMIN_CONFIG_SERVER_MODE: "True"
-    ports:
-      - "8080:80"
-    volumes:
-      - ./pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      - postgres
-    networks:
-      mynetwork:
-        ipv4_address: 172.31.5.10
 
   # valkey:
   #   image: valkey/valkey:8.1-alpine

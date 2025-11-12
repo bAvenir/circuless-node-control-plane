@@ -18,7 +18,6 @@ etcd_data/
 # apisix
 apisix/logs/
 # Alembic - SQL migrations
-alembic.ini
-alembic/
+alembic/versions/
 # Certificates
 *.pem

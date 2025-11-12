@@ -28,7 +28,6 @@ class Settings(BaseSettings):
     # Loaded from certificate (IF NONE, collaborative features disabled)
     CLIENT_ID: str = ""
     DATABASE_URL: str
-    SYNC_DATABASE_URL: str
     DATABASE_TABLE: str = os.getenv("DATABASE_TABLE", "items")
 
     @property

@@ -6,7 +6,7 @@ from alembic import context
 
 # Import your Base and models
 from persistance.database import Base
-from persistance.models_wot import ThingDescriptionDB  # Import all your models here
+from persistance.tables import ThingDescriptionDB  # Import all your models here
 
 # Import app config
 from utils import config as app_config

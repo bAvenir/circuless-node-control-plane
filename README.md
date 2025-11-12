@@ -43,5 +43,30 @@ docker compose up -d
 ### Stop
 docker compose down
 
+## DB management
 
+Using SQLAlchemy and alembic
+
+### DB initialization
+
+Inside folder sources
+
+    python init_db.py
+
+### Other alembic commands
+
+#### Create new migration after model changes
+alembic revision --autogenerate -m "What changed in the table"
+
+#### Apply all pending migrations
+alembic upgrade head
+
+#### Rollback one migration
+alembic downgrade -1
+
+#### Check current database version
+alembic current
+
+#### View migration history
+alembic history --verbose
 

@@ -3,7 +3,7 @@ import subprocess
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 from persistance.database import engine, Base
-from persistance.models_wot import ThingDescriptionDB  # Import ALL your models here
+from persistance.tables import ThingDescriptionDB  # Import ALL your models here
 from utils import config
 
 settings = config.settings
