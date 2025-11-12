@@ -21,3 +21,4 @@ apisix/logs/
 alembic/versions/
 # Certificates
 *.pem
+pgadmin_data/
