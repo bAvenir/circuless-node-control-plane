@@ -12,10 +12,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Add the application's src directory to the system path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
 # Import your model's Base
-from database.models import SQLModel as Base  # Assuming SQLModel is your declarative base
+# from database.models import SQLModel as Base  # Assuming SQLModel is your declarative base
+from persistance.database import Base
+
+# Import models so Alembic can detect them
+from persistance import database_models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -89,9 +93,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

@@ -22,3 +22,4 @@ alembic.ini
 alembic/
 # Certificates
 *.pem
+pgadmin_data/
