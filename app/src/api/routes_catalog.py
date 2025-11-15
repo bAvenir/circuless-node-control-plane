@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 logger = logging.getLogger(__name__)
 router_catalog = APIRouter(
     prefix="/catalog",
-    tags=["Catalog router"],
+    tags=["Catalog"],
     responses={404: {"description": "Not found"}},
 )
 

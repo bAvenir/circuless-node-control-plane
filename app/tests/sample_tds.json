@@ -1,0 +1,71 @@
+[
+    {
+        "@context": "https://www.w3.org/2019/wot/td/v1",
+        "@type": "Thing",
+        "id": "urn:dev:ops:32473-WoTLamp-1234",
+        "title": "MyLampThing",
+        "securityDefinitions": {
+            "basic_sc": {"scheme": "basic", "in": "header"}
+        },
+        "security": "basic_sc",
+        "properties": {
+            "status": {
+                "type": "string",
+                "forms": [{"href": "https://mylamp.example.com/status"}]
+            }
+        }
+    },
+    {
+        "@context": "https://www.w3.org/2019/wot/td/v1",
+        "@type": ["Thing", "Sensor"],
+        "id": "urn:dev:ops:32473-WoTTemp-5678",
+        "title": "TemperatureSensor",
+        "securityDefinitions": {
+            "bearer_sc": {"scheme": "bearer", "in": "header"}
+        },
+        "security": "bearer_sc",
+        "properties": {
+            "temperature": {
+                "type": "number",
+                "unit": "celsius",
+                "observable": true,
+                "forms": [{"href": "https://temp.example.com/temp"}]
+            },
+            "humidity": {
+                "type": "number",
+                "observable": false,
+                "forms": [{"href": "https://temp.example.com/humidity"}]
+            }
+        },
+        "actions": {
+            "reset": {
+                "forms": [{"href": "https://temp.example.com/reset", "op": "invokeaction"}]
+            }
+        }
+    },
+    {
+        "@context": "https://www.w3.org/2019/wot/td/v1",
+        "@type": "Thing",
+        "id": "urn:dev:ops:32473-WoTDoor-9999",
+        "title": "SmartDoor",
+        "securityDefinitions": {
+            "bearer_sc": {"scheme": "bearer", "in": "header"}
+        },
+        "security": "bearer_sc",
+        "properties": {
+            "isOpen": {
+                "type": "boolean",
+                "observable": true,
+                "forms": [{"href": "https://door.example.com/status"}]
+            }
+        },
+        "actions": {
+            "open": {
+                "forms": [{"href": "https://door.example.com/open", "op": "invokeaction"}]
+            },
+            "close": {
+                "forms": [{"href": "https://door.example.com/close", "op": "invokeaction"}]
+            }
+        }
+    }
+]

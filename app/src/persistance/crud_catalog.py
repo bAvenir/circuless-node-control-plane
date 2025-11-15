@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from persistance.database_models import Dataset
+from persistance.tables import Dataset
 
 
 async def get_dataset(db: AsyncSession, dataset_id: str):

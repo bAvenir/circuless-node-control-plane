@@ -86,13 +86,12 @@ async def delete_thing_description(
     logger.info("Asset succesfuly deleted")
     return {"message": "Thing Description deleted successfully"}
 
-@router_wot.get("/search/", response_model=List[ThingDescriptionResponse])
+@router_wot.get("/search/jsonpath", response_model=List[ThingDescriptionResponse])
 async def search_thing_descriptions(
-    field: str,
-    value: str,
+    query: str,
     db: AsyncSession = Depends(get_db)
 ):
-    """Search Thing Descriptions by JSONB field"""
-    results = await ThingDescriptionCRUD.query_jsonb_field(db, field, value)
+    """Search Thing Descriptions by JSONB query"""
+    results = await ThingDescriptionCRUD.jsonpath_query(db, query)
     logger.info("Asset succesfuly retrieved")
     return results
