@@ -809,3 +809,8 @@ class ProtocolVersions(BaseModel):
         min_length=1,
         description="Supported protocol versions"
     )
+
+class HealthCheckResponse(BaseModel):
+    status: str
+    timestamp: str
+    checks: Dict[str, Any]

@@ -1,17 +1,17 @@
-import uuid
 import logging
-from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from fastapi import APIRouter, Response, status, Depends
 
-from persistance.database import get_db
 #from persistance.models import ThingDescriptionCreate, ThingDescriptionResponse
 #from persistance.crud import ThingDescriptionCRUD
 from api.routes_catalog import router_catalog
 from api.routes_wot import router_wot
+from persistance.crud_health import check_postgres
+from persistance.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
 # from api.negotiation_router import negotiation_router as negotiations_router
 # from api.transfers_router import transfers_router as transfers_router
-from persistance.models import VersionResponse
+from persistance.models import VersionResponse, HealthCheckResponse
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,53 @@ router_api = APIRouter(
 
 router_api.include_router(router_catalog)
 router_api.include_router(router_wot)
+
+# Health checks
+
+@router_api.get("/health", 
+                responses={
+                    200: {"description": "Service is healthy"},
+                    503: {"description": "Service is unhealthy"}
+                    },
+                tags=["Main"])
+async def health_check():
+    """Basic health check"""
+    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
+
+@router_api.get("/health/ready",
+                response_model=HealthCheckResponse,
+                responses={
+                    200: {"description": "Service is healthy"},
+                    503: {"description": "Service is unhealthy"}
+                    }, 
+                tags=["Main"])
+async def readiness_check(response: Response, db: AsyncSession = Depends(get_db)):
+    """
+    Readiness check including dependencies
+    Returns 503 if any dependency is unhealthy
+    """
+    checks = {
+        "app": {"status": "healthy"}
+    }
+    
+    # Check database if engine provided
+    if db:
+        checks["postgres"] = await check_postgres(db)
+    
+    # Determine overall health
+    all_healthy = all(
+        check.get("status") == "healthy" 
+        for check in checks.values()
+    )
+    
+    if not all_healthy:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    
+    return {
+        "status": "healthy" if all_healthy else "unhealthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "checks": checks
+    }
 
 # Exposure of Versions
 
@@ -68,85 +115,3 @@ async def get_dspace_version():
         ]
         }
     return payload
-
-# @router.post("/things/", response_model=ThingDescriptionResponse)
-# async def create_thing_description(
-#     td: ThingDescriptionCreate,
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     """Create a new Thing Description"""
-#     td_data = td.dict()
-#     db_td = await ThingDescriptionCRUD.create(db, td_data)
-#     logger.info("Asset succesfuly posted")
-#     return db_td
-
-# @router.get("/things/{td_id}", response_model=ThingDescriptionResponse)
-# async def get_thing_description(
-#     td_id: int,
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     """Get Thing Description by ID"""
-#     db_td = await ThingDescriptionCRUD.get_by_id(db, td_id)
-#     if not db_td:
-#         raise HTTPException(status_code=404, detail="Thing Description not found")
-#     logger.info("Asset succesfuly retrieved")
-#     return db_td
-
-# @router.get("/things/oid/{oid}", response_model=ThingDescriptionResponse)
-# async def get_thing_description_by_oid(
-#     oid: uuid.UUID,
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     """Get Thing Description by OID"""
-#     db_td = await ThingDescriptionCRUD.get_by_oid(db, oid)
-#     if not db_td:
-#         raise HTTPException(status_code=404, detail="Thing Description not found")
-#     logger.info("Asset succesfuly retrieved")
-#     return db_td
-
-# @router.get("/things/", response_model=List[ThingDescriptionResponse])
-# async def list_thing_descriptions(
-#     skip: int = 0,
-#     limit: int = 100,
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     """List all Thing Descriptions"""
-#     logger.info("Assets succesfuly retrieved")
-#     return await ThingDescriptionCRUD.get_all(db, skip=skip, limit=limit)
-
-# @router.put("/things/{td_id}", response_model=ThingDescriptionResponse)
-# async def update_thing_description(
-#     td_id: int,
-#     td: ThingDescriptionCreate,
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     """Update Thing Description"""
-#     td_data = td.dict()
-#     db_td = await ThingDescriptionCRUD.update(db, td_id, td_data)
-#     if not db_td:
-#         raise HTTPException(status_code=404, detail="Thing Description not found")
-#     logger.info("Asset succesfuly updated")
-#     return db_td
-
-# @router.delete("/things/{td_id}")
-# async def delete_thing_description(
-#     td_id: int,
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     """Delete Thing Description"""
-#     success = await ThingDescriptionCRUD.delete(db, td_id)
-#     if not success:
-#         raise HTTPException(status_code=404, detail="Thing Description not found")
-#     logger.info("Asset succesfuly deleted")
-#     return {"message": "Thing Description deleted successfully"}
-
-# @router.get("/search/", response_model=List[ThingDescriptionResponse])
-# async def search_thing_descriptions(
-#     field: str,
-#     value: str,
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     """Search Thing Descriptions by JSONB field"""
-#     results = await ThingDescriptionCRUD.query_jsonb_field(db, field, value)
-#     logger.info("Asset succesfuly retrieved")
-#     return results
