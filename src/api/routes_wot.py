@@ -92,6 +92,6 @@ async def search_thing_descriptions(
     db: AsyncSession = Depends(get_db)
 ):
     """Search Thing Descriptions by JSONB query"""
-    results = await ThingDescriptionCRUD.jsonpath_query(db, query)
+    results = await ThingDescriptionCRUD.jsonpath_search(db, query)
     logger.info("Asset succesfuly retrieved")
     return results

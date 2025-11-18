@@ -68,7 +68,7 @@ class ThingDescriptionCRUD:
         return result.rowcount > 0
     
     @staticmethod
-    async def jsonpath_query(
+    async def jsonpath_search(
         db: AsyncSession,
         jsonpath_query: str,
         max_results: int = 10 

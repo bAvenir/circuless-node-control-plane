@@ -29,7 +29,7 @@ Copy .env to root, use localhost to connect to postgres
 
 APISIX will be skipped
 
-fastapi run app/src/main.py --port 3000
+fastapi run src/main.py --port 3000
 
 ## Run with docker
 Copy .env to app directory and replace URLs for Docker DNS names (i.e. localhost --> Postgres)
@@ -70,3 +70,33 @@ alembic current
 #### View migration history
 alembic history --verbose
 
+## Test
+
+### Manage test db
+
+#### Initialize test database
+python init_test_db.py
+
+#### Reset test database (drop and recreate)
+python init_test_db.py --reset
+
+#### Drop test database
+python init_test_db.py --drop
+
+### Run all tests
+pytest
+
+### Run with verbose output
+pytest -v
+
+### Run specific test file
+pytest tests/test_jsonpath_search.py
+
+### Run specific test
+pytest tests/test_jsonpath_search.py::test_search_observable_properties
+
+### Run tests matching pattern
+pytest -k "observable"
+
+### Run with coverage report
+pytest --cov=app --cov-report=html
