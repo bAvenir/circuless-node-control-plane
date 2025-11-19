@@ -11,7 +11,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False
     )
-    APP_NAME: str = "CIRCULess Node"
+    APP_NAME: str = "CIRCULess Node Control Plane"
     APP_VERSION: str = "0.0.1"
     APP_PORT: int = 3000
     APP_ENV: str = "DEV"
@@ -27,8 +27,13 @@ class Settings(BaseSettings):
     AUTH_REALM: str = "circuless"
     # Loaded from certificate (IF NONE, collaborative features disabled)
     CLIENT_ID: str = ""
+    # Database info
     DATABASE_URL: str
     DATABASE_TABLE: str = os.getenv("DATABASE_TABLE", "items")
+    # OTEL
+    OTEL_EXPORTER: str = "zipkin" # TBD configure more exporters
+    OTEL_ENDPOINT: str = "http://localhost:9411/api/v2/spans"
+    OTEL_ENABLED: bool = True
 
     @property
     def SQL_LOG(self) -> bool:

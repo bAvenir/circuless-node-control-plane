@@ -30,6 +30,14 @@ services:
       mynetwork:
         ipv4_address: 172.31.5.2
 
+  zipkin:
+    image: openzipkin/zipkin-slim:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+
   # valkey:
   #   image: valkey/valkey:8.1-alpine
   #   container_name: valkey

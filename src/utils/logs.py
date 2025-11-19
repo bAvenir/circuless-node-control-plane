@@ -18,7 +18,7 @@ class CustomLogger:
             console_handler.setLevel(self._get_log_level(log_level))
 
             # Create a formatter and add it to the handler
-            log_format = '%(asctime)s [%(name)s] %(levelname)-8s - %(message)s'
+            log_format = '%(asctime)s [%(name)s] %(levelname)-2s - %(message)s'
             formatter = logging.Formatter(log_format)
             console_handler.setFormatter(formatter)
 
