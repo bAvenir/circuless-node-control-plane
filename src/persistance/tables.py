@@ -5,7 +5,7 @@ from persistance.database import Base
 
 class ThingDescriptionDB(Base):
     __tablename__ = "thing_descriptions"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     oid = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False, index=True)
     td = Column(JSONB, nullable=False)

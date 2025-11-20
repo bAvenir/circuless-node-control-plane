@@ -22,26 +22,25 @@ class JsonLdBase(BaseModel):
         use_enum_values=True,
         extra='allow'
     )
-    
+
     context: Union[Dict[str, str], List[Union[str, Dict[str, str]]]] = Field(
-        ..., 
+        ...,
         alias="@context",
         description="JSON-LD context"
     )
     id: str = Field(
-        ..., 
+        ...,
         alias="@id",
         description="Unique identifier (IRI/URI)"
     )
     type: Union[str, List[str]] = Field(
-        ..., 
+        ...,
         alias="@type",
         description="Type identifier(s)"
     )
 
 
 # Version response model
-
 
 class Auth(BaseModel):
     """Authentication configuration for protocol version"""
@@ -62,12 +61,12 @@ class ProtocolVersionResponseModel(BaseModel):
 class VersionResponse(BaseModel):
     """Dataspace Protocol Version Response"""
     protocolVersions: List[ProtocolVersionResponseModel] = Field(
-        ..., 
+        ...,
         min_length=1,
         description="List of supported protocol versions (must contain at least one)"
     )
-    
-    
+
+
 # ============================================================================
 # ODRL MODELS - Open Digital Rights Language structures
 # ============================================================================
@@ -76,7 +75,7 @@ class ODRLAction(BaseModel):
     """ODRL Action"""
     id: Optional[str] = Field(None, alias="@id")
     type: str = Field(default="odrl:Action", alias="@type")
-    
+
     # Common actions: use, distribute, reproduce, modify, etc.
     value: Optional[str] = Field(
         None,
@@ -88,11 +87,11 @@ class ODRLConstraint(BaseModel):
     """ODRL Constraint - conditions that must be satisfied"""
     id: Optional[str] = Field(None, alias="@id")
     type: str = Field(default="odrl:Constraint", alias="@type")
-    
+
     left_operand: str = Field(..., alias="odrl:leftOperand")
     operator: str = Field(..., alias="odrl:operator")
     right_operand: Union[str, int, float, bool] = Field(..., alias="odrl:rightOperand")
-    
+
     # For complex constraints
     unit: Optional[str] = Field(None, alias="odrl:unit")
     data_type: Optional[str] = Field(None, alias="odrl:dataType")
@@ -102,7 +101,7 @@ class ODRLLogicalConstraint(BaseModel):
     """Logical constraint combining multiple constraints"""
     id: Optional[str] = Field(None, alias="@id")
     type: str = Field(default="odrl:LogicalConstraint", alias="@type")
-    
+
     and_: Optional[List[Union[ODRLConstraint, "ODRLLogicalConstraint"]]] = Field(
         None, alias="odrl:and"
     )
@@ -118,7 +117,7 @@ class ODRLDuty(BaseModel):
     """ODRL Duty - obligation that must be fulfilled"""
     id: Optional[str] = Field(None, alias="@id")
     type: str = Field(default="odrl:Duty", alias="@type")
-    
+
     action: Union[ODRLAction, str] = Field(..., alias="odrl:action")
     constraint: Optional[List[Union[ODRLConstraint, ODRLLogicalConstraint]]] = Field(
         None, alias="odrl:constraint"
@@ -130,16 +129,16 @@ class ODRLPermission(BaseModel):
     """ODRL Permission - allowed actions"""
     id: Optional[str] = Field(None, alias="@id")
     type: str = Field(default="odrl:Permission", alias="@type")
-    
+
     action: Union[ODRLAction, str, Dict[str, Any]] = Field(..., alias="odrl:action")
     constraint: Optional[List[Union[ODRLConstraint, ODRLLogicalConstraint]]] = Field(
         None, alias="odrl:constraint"
     )
     duty: Optional[List[ODRLDuty]] = Field(None, alias="odrl:duty")
-    
+
     # Target is inherited from parent in DSP context
     target: Optional[str] = Field(
-        None, 
+        None,
         alias="odrl:target",
         description="Must NOT be set when inside Dataset/Catalog Offer"
     )
@@ -149,12 +148,12 @@ class ODRLProhibition(BaseModel):
     """ODRL Prohibition - forbidden actions"""
     id: Optional[str] = Field(None, alias="@id")
     type: str = Field(default="odrl:Prohibition", alias="@type")
-    
+
     action: Union[ODRLAction, str, Dict[str, Any]] = Field(..., alias="odrl:action")
     constraint: Optional[List[Union[ODRLConstraint, ODRLLogicalConstraint]]] = Field(
         None, alias="odrl:constraint"
     )
-    
+
     target: Optional[str] = Field(
         None,
         alias="odrl:target",
@@ -169,7 +168,7 @@ class ODRLOffer(JsonLdBase):
     When inside negotiation messages: target MUST be set
     """
     type: str = Field(default="odrl:Offer", alias="@type")
-    
+
     permission: Optional[List[ODRLPermission]] = Field(
         default_factory=list, alias="odrl:permission"
     )
@@ -179,14 +178,14 @@ class ODRLOffer(JsonLdBase):
     obligation: Optional[List[ODRLDuty]] = Field(
         None, alias="odrl:obligation"
     )
-    
+
     # Target is context-dependent
     target: Optional[str] = Field(
         None,
         alias="odrl:target",
         description="Dataset ID - set only in negotiation messages"
     )
-    
+
     # ODRL policy attributes
     assigner: Optional[str] = Field(None, alias="odrl:assigner")
     assignee: Optional[str] = Field(None, alias="odrl:assignee")
@@ -195,13 +194,13 @@ class ODRLOffer(JsonLdBase):
 class ODRLAgreement(JsonLdBase):
     """ODRL Agreement - result of successful negotiation"""
     type: str = Field(default="odrl:Agreement", alias="@type")
-    
+
     target: str = Field(
         ...,
         alias="odrl:target",
         description="Dataset ID - MUST be present in Agreement"
     )
-    
+
     permission: Optional[List[ODRLPermission]] = Field(
         default_factory=list, alias="odrl:permission"
     )
@@ -211,7 +210,7 @@ class ODRLAgreement(JsonLdBase):
     obligation: Optional[List[ODRLDuty]] = Field(
         None, alias="odrl:obligation"
     )
-    
+
     # Required for Agreement
     timestamp: datetime = Field(
         ...,
@@ -234,9 +233,9 @@ class ODRLAgreement(JsonLdBase):
 # DCAT MODELS - Data Catalog Vocabulary structures
 # ============================================================================
 
-# # Catalog 
+# # Catalog
 # # test
-# # ===== Base Model (ak ho ešte nemáš) =====
+# ===== Base Model (ak ho ešte nemáš) =====
 # class JsonLdBase(BaseModel):
 #     model_config = ConfigDict(populate_by_name=True, extra="allow")
 
@@ -279,13 +278,13 @@ class ODRLAgreement(JsonLdBase):
 #     participant_id: str = Field(alias="participantId")
 #     service: List[DCATDataServiceTest]
 #     dataset: List[DCATDatasetTest] = Field(default_factory=list)
-    
+
 # # Test instance
 
 class DCATDataService(JsonLdBase):
     """DCAT Data Service - specifies connector endpoint"""
     type: str = Field(default="dcat:DataService", alias="@type")
-    
+
     endpoint_url: Optional[str] = Field(
         None,
         alias="dcat:endpointURL",
@@ -309,14 +308,14 @@ class DCATDataService(JsonLdBase):
 class DCATDistribution(JsonLdBase):
     """DCAT Distribution - represents accessible form of dataset"""
     type: str = Field(default="dcat:Distribution", alias="@type")
-    
+
     format: Optional[str] = Field(None, alias="dct:format")
     access_service: Optional[Union[DCATDataService, str]] = Field(
         None,
         alias="dcat:accessService",
         description="Data service for accessing this distribution"
     )
-    
+
     # Optional distribution-specific policies
     has_policy: Optional[List[ODRLOffer]] = Field(
         None,
@@ -331,16 +330,16 @@ class DCATDataset(JsonLdBase):
     Core entity in Dataspace Protocol catalogs
     """
     type: Union[str, List[str]] = Field(default="dcat:Dataset", alias="@type")
-    
+
     # Core metadata
     title: Optional[str] = Field(None, alias="dct:title")
     description: Optional[str] = Field(None, alias="dct:description")
     keyword: Optional[List[str]] = Field(None, alias="dcat:keyword")
-    
+
     # Temporal metadata
     issued: Optional[datetime] = Field(None, alias="dct:issued")
     modified: Optional[datetime] = Field(None, alias="dct:modified")
-    
+
     # DSP requires 1..N policies
     has_policy: List[ODRLOffer] = Field(
         ...,
@@ -348,14 +347,14 @@ class DCATDataset(JsonLdBase):
         min_length=1,
         description="Usage policies - minimum 1 required"
     )
-    
+
     # DSP requires 1..N distributions
     distribution: List[DCATDistribution] = Field(
         default_factory=list,
         alias="dcat:distribution",
         description="Distribution specifications"
     )
-    
+
     # Additional DCAT properties
     theme: Optional[List[str]] = Field(None, alias="dcat:theme")
     creator: Optional[str] = Field(None, alias="dct:creator")
@@ -369,32 +368,32 @@ class DCATCatalog(JsonLdBase):
     Main response structure for Catalog Protocol
     """
     type: str = Field(default="dcat:Catalog", alias="@type")
-    
+
     # Core catalog metadata
     title: Optional[str] = Field(None, alias="dct:title")
     description: Optional[str] = Field(None, alias="dct:description")
-    
+
     # Participant identifier
     participant_id: Optional[str] = Field(
         None,
         alias="dspace:participantId",
         description="Connector participant identifier"
     )
-    
+
     # Datasets (0..N - may be empty based on credentials)
     dataset: List[DCATDataset] = Field(
         default_factory=list,
         alias="dcat:dataset",
         description="Contained datasets"
     )
-    
+
     # DSP requires 1..N data services
     service: Optional[Union[DCATDataService, List[DCATDataService]]] = Field(
         None,
         alias="dcat:service",
         description="Connector service endpoints"
     )
-    
+
     # Additional catalog metadata
     issued: Optional[datetime] = Field(None, alias="dct:issued")
     modified: Optional[datetime] = Field(None, alias="dct:modified")
@@ -421,7 +420,7 @@ class ContractRequestMessage(JsonLdBase):
     Sent by Consumer
     """
     type: str = Field(default="dspace:ContractRequestMessage", alias="@type")
-    
+
     consumer_pid: Optional[str] = Field(
         None,
         alias="dspace:consumerPid",
@@ -432,19 +431,19 @@ class ContractRequestMessage(JsonLdBase):
         alias="dspace:providerPid",
         description="Provider Process ID (for existing negotiation)"
     )
-    
+
     offer: Union[ODRLOffer, str] = Field(
         ...,
         alias="dspace:offer",
         description="ODRL Offer or Offer ID reference"
     )
-    
+
     callback_address: str = Field(
         ...,
         alias="dspace:callbackAddress",
         description="Consumer callback URL for asynchronous messages"
     )
-    
+
     @model_validator(mode='after')
     def validate_offer_target(self):
         """Offer in request message MUST have target"""
@@ -459,7 +458,7 @@ class ContractOfferMessage(JsonLdBase):
     Sent by Provider
     """
     type: str = Field(default="dspace:ContractOfferMessage", alias="@type")
-    
+
     consumer_pid: Optional[str] = Field(
         None,
         alias="dspace:consumerPid",
@@ -470,19 +469,19 @@ class ContractOfferMessage(JsonLdBase):
         alias="dspace:providerPid",
         description="Provider Process ID"
     )
-    
+
     offer: ODRLOffer = Field(
         ...,
         alias="dspace:offer",
         description="ODRL Offer with target"
     )
-    
+
     callback_address: Optional[str] = Field(
         None,
         alias="dspace:callbackAddress",
         description="Provider callback URL"
     )
-    
+
     @model_validator(mode='after')
     def validate_offer_target(self):
         """Offer in offer message MUST have target"""
@@ -497,16 +496,16 @@ class ContractAgreementMessage(JsonLdBase):
     Sent by Provider when agreeing to contract
     """
     type: str = Field(default="dspace:ContractAgreementMessage", alias="@type")
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     agreement: ODRLAgreement = Field(
         ...,
         alias="dspace:agreement",
         description="Complete ODRL Agreement"
     )
-    
+
     callback_address: Optional[str] = Field(
         None, alias="dspace:callbackAddress"
     )
@@ -521,7 +520,7 @@ class ContractAgreementVerificationMessage(JsonLdBase):
         default="dspace:ContractAgreementVerificationMessage",
         alias="@type"
     )
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
 
@@ -541,10 +540,10 @@ class ContractNegotiationEventMessage(JsonLdBase):
         default="dspace:ContractNegotiationEventMessage",
         alias="@type"
     )
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     event_type: ContractNegotiationEventType = Field(
         ...,
         alias="dspace:eventType",
@@ -561,10 +560,10 @@ class ContractNegotiationTerminationMessage(JsonLdBase):
         default="dspace:ContractNegotiationTerminationMessage",
         alias="@type"
     )
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     code: Optional[str] = Field(
         None,
         alias="dspace:code",
@@ -582,14 +581,14 @@ class ContractNegotiation(BaseModel):
     Contract Negotiation - response to successful state changes
     """
     model_config = ConfigDict(populate_by_name=True)
-    
+
     context: Union[Dict[str, str], str] = Field(..., alias="@context")
     type: str = Field(default="dspace:ContractNegotiation", alias="@type")
     id: str = Field(..., alias="@id")
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     state: ContractNegotiationState = Field(
         ...,
         alias="dspace:state",
@@ -600,13 +599,13 @@ class ContractNegotiation(BaseModel):
 class ContractNegotiationError(BaseModel):
     """Contract Negotiation Error response"""
     model_config = ConfigDict(populate_by_name=True)
-    
+
     context: Union[Dict[str, str], str] = Field(..., alias="@context")
     type: str = Field(default="dspace:ContractNegotiationError", alias="@type")
-    
+
     consumer_pid: Optional[str] = Field(None, alias="dspace:consumerPid")
     provider_pid: Optional[str] = Field(None, alias="dspace:providerPid")
-    
+
     code: Optional[str] = Field(None, alias="dspace:code")
     reason: Optional[List[Dict[str, Any]]] = Field(None, alias="dspace:reason")
 
@@ -627,7 +626,7 @@ class TransferState(str, Enum):
 class DataAddress(BaseModel):
     """Data Address - transport-specific endpoint information"""
     model_config = ConfigDict(populate_by_name=True, extra='allow')
-    
+
     endpoint_type: str = Field(
         ...,
         alias="dspace:endpointType",
@@ -651,7 +650,7 @@ class TransferRequestMessage(JsonLdBase):
     Sent by Consumer after agreement finalization
     """
     type: str = Field(default="dspace:TransferRequestMessage", alias="@type")
-    
+
     consumer_pid: Optional[str] = Field(
         None,
         alias="dspace:consumerPid",
@@ -662,25 +661,25 @@ class TransferRequestMessage(JsonLdBase):
         alias="dspace:providerPid",
         description="Provider Process ID (for existing transfer)"
     )
-    
+
     agreement_id: str = Field(
         ...,
         alias="dspace:agreementId",
         description="Reference to finalized contract agreement"
     )
-    
+
     format: Optional[str] = Field(
         None,
         alias="dct:format",
         description="Requested data format"
     )
-    
+
     data_address: Optional[DataAddress] = Field(
         None,
         alias="dspace:dataAddress",
         description="Consumer data address for push transfers"
     )
-    
+
     callback_address: str = Field(
         ...,
         alias="dspace:callbackAddress",
@@ -694,10 +693,10 @@ class TransferStartMessage(JsonLdBase):
     Sent by Provider
     """
     type: str = Field(default="dspace:TransferStartMessage", alias="@type")
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     data_address: Optional[DataAddress] = Field(
         None,
         alias="dspace:dataAddress",
@@ -711,7 +710,7 @@ class TransferCompletionMessage(JsonLdBase):
     Can be sent by Provider or Consumer
     """
     type: str = Field(default="dspace:TransferCompletionMessage", alias="@type")
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
 
@@ -722,10 +721,10 @@ class TransferSuspensionMessage(JsonLdBase):
     Can be sent by Provider or Consumer
     """
     type: str = Field(default="dspace:TransferSuspensionMessage", alias="@type")
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     code: Optional[str] = Field(None, alias="dspace:code")
     reason: Optional[List[Dict[str, Any]]] = Field(None, alias="dspace:reason")
 
@@ -736,10 +735,10 @@ class TransferTerminationMessage(JsonLdBase):
     Can be sent by Provider or Consumer
     """
     type: str = Field(default="dspace:TransferTerminationMessage", alias="@type")
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     code: Optional[str] = Field(None, alias="dspace:code")
     reason: Optional[List[Dict[str, Any]]] = Field(None, alias="dspace:reason")
 
@@ -747,14 +746,14 @@ class TransferTerminationMessage(JsonLdBase):
 class TransferProcess(BaseModel):
     """Transfer Process - response to successful state changes"""
     model_config = ConfigDict(populate_by_name=True)
-    
+
     context: Union[Dict[str, str], str] = Field(..., alias="@context")
     type: str = Field(default="dspace:TransferProcess", alias="@type")
     id: str = Field(..., alias="@id")
-    
+
     consumer_pid: str = Field(..., alias="dspace:consumerPid")
     provider_pid: str = Field(..., alias="dspace:providerPid")
-    
+
     state: TransferState = Field(
         ...,
         alias="dspace:state",
@@ -765,13 +764,13 @@ class TransferProcess(BaseModel):
 class TransferError(BaseModel):
     """Transfer Process Error response"""
     model_config = ConfigDict(populate_by_name=True)
-    
+
     context: Union[Dict[str, str], str] = Field(..., alias="@context")
     type: str = Field(default="dspace:TransferError", alias="@type")
-    
+
     consumer_pid: Optional[str] = Field(None, alias="dspace:consumerPid")
     provider_pid: Optional[str] = Field(None, alias="dspace:providerPid")
-    
+
     code: Optional[str] = Field(None, alias="dspace:code")
     reason: Optional[List[Dict[str, Any]]] = Field(None, alias="dspace:reason")
 
@@ -783,7 +782,7 @@ class TransferError(BaseModel):
 class ProtocolVersion(BaseModel):
     """Dataspace Protocol Version information"""
     model_config = ConfigDict(populate_by_name=True)
-    
+
     version: str = Field(
         ...,
         alias="dspace:version",
@@ -799,10 +798,10 @@ class ProtocolVersion(BaseModel):
 class ProtocolVersions(BaseModel):
     """Response for version discovery"""
     model_config = ConfigDict(populate_by_name=True)
-    
+
     context: Union[Dict[str, str], str] = Field(..., alias="@context")
     type: str = Field(default="dspace:ProtocolVersions", alias="@type")
-    
+
     protocol_versions: List[ProtocolVersion] = Field(
         ...,
         alias="dspace:protocolVersions",

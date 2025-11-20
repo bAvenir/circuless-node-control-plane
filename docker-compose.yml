@@ -14,7 +14,7 @@ services:
   #   networks:
   #     - mynetwork
   #   restart: unless-stopped
-  
+
   postgres:
     image: postgres:17.6-alpine
     container_name: postgres
@@ -23,12 +23,12 @@ services:
       POSTGRES_PASSWORD: bavenir
       POSTGRES_DB: circdb
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-    networks:
-      mynetwork:
-        ipv4_address: 172.31.5.2
+    # networks:
+    #   mynetwork:
+    #     ipv4_address: 172.31.5.2
 
   # valkey:
   #   image: valkey/valkey:8.1-alpine
@@ -104,4 +104,3 @@ networks:
 
 # volumes:
 #   pgadmin_data:
- 

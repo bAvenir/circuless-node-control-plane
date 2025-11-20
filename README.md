@@ -29,7 +29,7 @@ Copy .env to root, use localhost to connect to postgres
 
 APISIX will be skipped
 
-fastapi run src/main.py --port 3000
+fastapi run src/main.py --port 3001
 
 ## Run with docker
 Copy .env to app directory and replace URLs for Docker DNS names (i.e. localhost --> Postgres)
