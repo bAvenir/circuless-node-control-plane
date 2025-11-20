@@ -1,0 +1,44 @@
+service:
+  flush: 1
+  log_level: info
+  parsers_file: /fluent-bit/parsers.yml
+  http_server: on
+  http_listen: 0.0.0.0
+  http_port: 2020
+
+inputs:
+  # Logs sent from the app via FluentBitHandler / forward protocol (TCP 24224)
+  - name: forward
+    listen: 0.0.0.0
+    port: 24224
+    tag: app.forward
+
+  # Tail JSON log files written by the app
+  - name: tail
+    path: /var/log/app/*.log
+    parser: json
+    tag: app.tail
+    mem_buf_limit: 10MB
+    refresh_interval: 5
+    skip_long_lines: on
+    rotate_wildcard: on
+
+filters:
+  # Add common labels/fields (env, app)
+  - name: modify
+    match: app.*
+    add:
+      app: ${APP_NAME}
+      env: ${ENV}
+
+outputs:
+  # Development: print parsed records to Fluent Bit container console
+  - name: stdout
+    match: app.*
+
+  # Also persist processed records to a single file (one JSON object per line)
+  - name: file
+    match: app.*
+    path: /var/log/fluent-bit
+    file: fastapi.log
+    format: json_lines

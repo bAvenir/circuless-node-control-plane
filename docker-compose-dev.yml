@@ -17,7 +17,7 @@ services:
       mynetwork:
         ipv4_address: 172.31.5.5
     restart: unless-stopped
-
+  
   postgres:
     image: postgres:17.6-alpine
     container_name: postgres
@@ -26,7 +26,7 @@ services:
       POSTGRES_PASSWORD: bavenir
       POSTGRES_DB: circdb
     ports:
-      - "5434:5432"
+      - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     networks:
@@ -34,34 +34,34 @@ services:
         ipv4_address: 172.31.5.2
 
     # Fluent Bit Log Collector
-  # fluent-bit:
-  #   image: fluent/fluent-bit:4.2
-  #   container_name: fluent-bit
-  #   volumes:
-  #     - ./fluent-bit/fluent-bit.yaml:/fluent-bit/etc/fluent-bit.yaml
-  #     - ./fluent-bit/parsers.yaml:/fluent-bit/etc/parsers.yaml
-  #     - ./logs:/var/log/fastapi:ro
-  #     - ./fluentbit-out:/fluent-bit/logs
-  #   environment:
-  #     - ENVIRONMENT=development
-  #     - LOKI_HOST=loki
-  #     - LOKI_PORT=3100
-  #   command: /fluent-bit/bin/fluent-bit -c /fluent-bit/etc/fluent-bit.yaml
-  #   restart: unless-stopped
-  #   networks:
-  #     mynetwork:
-  #       ipv4_address: 172.31.5.3
+  fluent-bit:
+    image: fluent/fluent-bit:4.2
+    container_name: fluent-bit
+    volumes:
+      - ./fluent-bit/fluent-bit.yaml:/fluent-bit/etc/fluent-bit.yaml
+      - ./fluent-bit/parsers.yaml:/fluent-bit/etc/parsers.yaml
+      - ./logs:/var/log/fastapi:ro
+      - ./fluentbit-out:/fluent-bit/logs
+    environment:
+      - ENVIRONMENT=development
+      - LOKI_HOST=loki
+      - LOKI_PORT=3100
+    command: /fluent-bit/bin/fluent-bit -c /fluent-bit/etc/fluent-bit.yaml
+    restart: unless-stopped
+    networks:
+      mynetwork:
+        ipv4_address: 172.31.5.3
 
-  # zipkin:
-  #   image: openzipkin/zipkin-slim:latest
-  #   container_name: zipkin
-  #   ports:
-  #     - "9411:9411"
-  #   environment:
-  #     - STORAGE_TYPE=mem
-  #   networks:
-  #     mynetwork:
-  #       ipv4_address: 172.31.5.10
+  zipkin:
+    image: openzipkin/zipkin-slim:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    networks:
+      mynetwork:
+        ipv4_address: 172.31.5.10
 
   # valkey:
   #   image: valkey/valkey:8.1-alpine
@@ -137,3 +137,4 @@ networks:
 
 # volumes:
 #   pgadmin_data:
+ 

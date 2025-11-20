@@ -22,3 +22,6 @@ alembic/versions/
 # Certificates
 *.pem
 pgadmin_data/
+# Logs
+fluentbit-out/
+logs/

@@ -1,0 +1,46 @@
+service:
+  flush: 1
+  log_level: info
+  parsers_file: /fluent-bit/parsers.yml
+  http_server: on
+  http_listen: 0.0.0.0
+  http_port: 2020
+
+inputs:
+  - name: forward
+    listen: 0.0.0.0
+    port: 24224
+    tag: app.forward
+
+  - name: tail
+    path: /var/log/app/*.log
+    parser: json
+    tag: app.tail
+    mem_buf_limit: 10MB
+    refresh_interval: 5
+    skip_long_lines: on
+    rotate_wildcard: on
+
+filters:
+  - name: modify
+    match: app.*
+    add:
+      app: ${APP_NAME}
+      env: ${ENV}
+
+outputs:
+  - name: file
+    match: app.*
+    path: /var/log/fluent-bit
+    file: fastapi.log
+    format: json_lines
+
+  # Optional Loki (enable by running Loki and setting LOKI_HOST/LOKI_PORT envs)
+  - name: loki
+    match: app.*
+    host: ${LOKI_HOST}
+    port: ${LOKI_PORT}
+    labels: job=${APP_NAME},env=${ENV}
+    label_keys: level,logger,request_id
+    remove_keys: app,env
+    tls: off
