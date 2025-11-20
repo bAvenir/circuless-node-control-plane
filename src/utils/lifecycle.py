@@ -6,7 +6,7 @@ from core.trust import parse_certificate
 from utils.otel_config import Otel
 from utils.config import settings
 
-async def initialize(app: FastAPI):
+async def initialize(app: FastAPI, otel: Otel):
     print("##############################################")
     print("""
     ▄▖▄▖▄▖▄▖▖▖▖         ▖ ▖   ▌  
@@ -33,10 +33,16 @@ async def initialize(app: FastAPI):
             CloudServiceClient.login()
             print(f"Running in {settings.APP_ENV} environment")
             print(f"Node with client id: {settings.CLIENT_ID}")
+            if settings.LOGS_EXTERNAL_ENABLED:
+                print(f"External logger is active to file {settings.LOGS_FILE_PATH} with verbosity {settings.LOGS_LEVEL}")
+            otel.otel_status()
             print(f"Node is managed by {list(organization.keys())}")
         except:
             settings.APP_ENV = "DEV"
             settings.APP_MODE = "PRIVATE"
+            if settings.LOGS_EXTERNAL_ENABLED:
+                print(f"External logger is active to file {settings.LOGS_FILE_PATH} with verbosity {settings.LOGS_LEVEL}")
+            otel.otel_status()
             print(f"Running in {settings.APP_ENV} environment")
             print(f"Node with client id: UNKNOWN")
     print(f"Node runs {settings.APP_MODE} mode")

@@ -1,0 +1,68 @@
+service:
+  flush: 1
+  log_level: info
+  parsers_file: /fluent-bit/etc/parsers.yaml
+
+pipeline:
+  inputs:
+    - name: tail
+      tag: fastapi.logs
+      path: /var/log/fastapi/app.log
+      read_from_head: true
+      parser: json
+      refresh_interval: 5
+      mem_buf_limit: 5MB
+      skip_long_lines: on
+      skip_empty_lines: on
+
+  filters:
+    # Parse JSON logs
+    - name: parser
+      match: '*'
+      key_name: log
+      parser: json
+      reserve_data: true
+      preserve_key: false
+
+    # Add Kubernetes metadata (if running in K8s)
+    # - name: modify
+    #   match: fastapi.*
+    #   add:
+    #     service: fastapi-app
+    #     environment: ${ENVIRONMENT:-development}
+    #     host: ${HOSTNAME:-localhost}
+
+    # Nest fields for better organization in Loki
+    - name: nest
+      match: fastapi.*
+      operation: nest
+      wildcard: level
+      wildcard: logger
+      wildcard: message
+      wildcard: module
+      wildcard: function
+      wildcard: line
+      wildcard: request_id
+      nest_under: log
+
+  outputs:
+    # Console output for development
+    # - name: stdout
+    #   match: app.*
+    #   format: json_lines
+
+    # File output for persistence
+    - name: file
+      match: '*'
+      path: /fluent-bit/logs/
+
+    # Loki output (optional, controlled by environment variable)
+    # - name: loki
+    #   match: fastapi.*
+    #   host: ${LOKI_HOST:-loki}
+    #   port: ${LOKI_PORT:-3100}
+    #   labels: job=circuless-node, environment=${ENVIRONMENT:-development}, service=fastapi-app
+    #   label_keys: $level, $request_id
+    #   remove_keys: timestamp
+    #   line_format: json
+    #   auto_kubernetes_labels: off

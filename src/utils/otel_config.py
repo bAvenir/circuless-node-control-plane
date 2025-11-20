@@ -69,13 +69,22 @@ class Otel:
         return
 
     def start_telemetry(self, app, engine):
-        self.setup_telemetry(app)
-        self.instrument_sqlalchemy(engine)
-        print(f"✓ OpenTelemetry initialized with {settings.OTEL_EXPORTER} exporter")
-        print(f"✓ Traces will be sent to {settings.OTEL_ENDPOINT}")
-        return
+        if self.enabled:
+            self.setup_telemetry(app)
+            self.instrument_sqlalchemy(engine)
+            return
+        else:
+            return
 
     def stop_telemetry(self):
-        self.trace_provider.shutdown()
-        print("✓ OpenTelemetry shutdown complete")
+        if self.enabled:
+            self.trace_provider.shutdown()
+            print("✓ OpenTelemetry shutdown complete")
         return
+    
+    def otel_status(self) -> None:
+        if self.enabled:
+            print(f"✓ OpenTelemetry initialized with {settings.OTEL_EXPORTER} exporter")
+            print(f"✓ Traces will be sent to {settings.OTEL_ENDPOINT}")
+        else:
+            print(f"✓ OpenTelemetry disabled")

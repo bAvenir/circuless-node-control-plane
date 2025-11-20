@@ -1,78 +1,109 @@
 import logging
-class CustomLogger:
-    def __init__(self, name: str, log_level: str = 'INFO', console_output: bool = True):
-        """
-        Initializes the custom logger.
+import sys
+import json
+import os
+from datetime import datetime
+from typing import Any, Dict
+from contextvars import ContextVar
+from utils.config import settings
 
-        :param name: The name of the logger (usually the module name)
-        :param log_level: The minimum level of logging (default is 'INFO')
-        :param console_output: Whether or not to also log to the console (default is True)
-        """
-        # Set up the logger
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(self._get_log_level(log_level))
+# Context variable to store request ID across async calls
+request_id_var: ContextVar[str] = ContextVar('request_id', default='')
 
-        # Create a console handler if console_output is True
-        if console_output:
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(self._get_log_level(log_level))
 
-            # Create a formatter and add it to the handler
-            log_format = '%(asctime)s [%(name)s] %(levelname)-2s - %(message)s'
-            formatter = logging.Formatter(log_format)
-            console_handler.setFormatter(formatter)
-
-            # Add the console handler to the logger
-            self.logger.addHandler(console_handler)
-
-    def _get_log_level(self, log_level: str):
-        """Helper method to get the logging level from a string"""
-        levels = {
-            'CRITICAL': logging.CRITICAL,
-            'ERROR': logging.ERROR,
-            'WARNING': logging.WARNING,
-            'INFO': logging.INFO,
-            'DEBUG': logging.DEBUG,
-            'NOTSET': logging.NOTSET
+class StructuredFormatter(logging.Formatter):
+    """
+    Custom formatter that outputs logs in JSON format for easy parsing by FluentBit
+    """
+    
+    def format(self, record: logging.LogRecord) -> str:
+        log_data: Dict[str, Any] = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
         }
-        return levels.get(log_level.upper(), logging.INFO)
-
-    def log(self, message: str, level: str = 'INFO'):
-        """
-        Log a message at a specific level.
-
-        :param message: The message to log
-        :param level: The log level (default is 'INFO')
-        """
-        log_method = getattr(self.logger, level.lower(), self.logger.info)
-        log_method(message)
-
-    def info(self, message: str):
-        """Log an info message"""
-        self.log(message, 'INFO')
-
-    def debug(self, message: str):
-        """Log a debug message"""
-        self.log(message, 'DEBUG')
-
-    def warning(self, message: str):
-        """Log a warning message"""
-        self.log(message, 'WARNING')
-
-    def error(self, message: str):
-        """Log an error message"""
-        self.log(message, 'ERROR')
-
-    def critical(self, message: str):
-        """Log a critical message"""
-        self.log(message, 'CRITICAL')
+        
+        # Add request ID if available
+        request_id = request_id_var.get()
+        if request_id:
+            log_data["request_id"] = request_id
+        
+        # Add exception info if present
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+        
+        # Add extra fields from the log record
+        if hasattr(record, 'extra_fields'):
+            log_data.update(record.extra_fields)
+        
+        return json.dumps(log_data)
 
 
-# Usage example
-if __name__ == '__main__':
-    logger = CustomLogger(name='MyAppLogger', log_level='DEBUG')
-    logger.debug("This is a debug message.")
-    logger.info("This is an info message.")
-    logger.warning("This is a warning message.")
-    logger.error("This is an error message.")
-    logger.critical("This is a critical message.")
+def setup_logging() -> logging.Logger:
+    """
+    Configure application logging with structured JSON output
+    
+    Args:
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    
+    Returns:
+        Configured logger instance
+    """
+    logger = logging.getLogger(f"circuless_node.{settings.CLIENT_ID}")
+    logger.setLevel(getattr(logging, settings.LOGS_LEVEL.upper()))
+    
+    # Remove existing handlers
+    logger.handlers.clear()
+    
+    # Console handler with structured formatting
+    # console_handler = logging.StreamHandler(sys.stdout)
+    # console_handler.setFormatter(StructuredFormatter())
+    # logger.addHandler(console_handler)
+    
+    # File handlers for verbose logs
+    # Persistance to file
+    # Fluent-bit picks up relevant logs and sends to LOKI (If configured)
+    if settings.LOGS_EXTERNAL_ENABLED:
+        # Create logs directory if it doesn't exist
+        log_dir = "logs"
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Error log handler - captures ERROR and CRITICAL only
+        file_handler = logging.FileHandler(
+            os.path.join(log_dir, settings.LOGS_FILE_PATH),
+            mode='a',
+            encoding='utf-8'
+        )
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(StructuredFormatter())
+        logger.addHandler(file_handler)
+
+    # Prevent propagation to root logger
+    logger.propagate = False
+    
+    return logger
+
+
+def log_with_context(logger: logging.Logger, level: str, message: str, **kwargs):
+    """
+    Helper function to log with additional context
+    
+    Args:
+        logger: Logger instance
+        level: Log level (debug, info, warning, error, critical)
+        message: Log message
+        **kwargs: Additional fields to include in the log
+    """
+    log_func = getattr(logger, level.lower())
+    
+    # Create a log record with extra fields
+    extra_record = type('obj', (object,), {'extra_fields': kwargs})()
+    log_func(message, extra={'extra_fields': kwargs})
+
+
+# Initialize the logger
+logger = setup_logging()
