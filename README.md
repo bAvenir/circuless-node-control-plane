@@ -3,45 +3,56 @@ Control plane for managing circuless remote data infrastructures
 
 ## Requirements
 
-APISIX, POSTGRES, ETCD, VALKEY
+Python installed if you plan to run locally
 
+Docker and docker compose
 
-## Configuration
-Create .env file
+Production: POSTGRES, APISIX*, ETCD*
 
-```
-DATABASE_URL=postgresql+asyncpg://bavenir:bavenir@localhost:5432/circdb
-```
+Development: (Testing whole stack) POSTGRES, APISIX*, ETCD*, ZIPKIN, FLUENT-BIT
+
+* APISIX not enabled in v0.0.1
+
+## Run production with Docker
+
+1. Copy environments/.env.docker in the root folder (Update if needed)
+
+2. Add your certificate.pem at the root folder. Obtain with support from bAvenir. (Without it you can start in development mode only)
+
+3. Build the application: docker compose up -d --build
+
+4. Initialize DB:
+
+Run 'docker ps' and get container ID of circuless-node. In the example output from docker ps below, take e2a1564620f7.
+
+>    
+    CONTAINER ID   IMAGE                              COMMAND                  CREATED              STATUS                        PORTS                                         NAMES
+    e2a1564620f7   circuless-node-control-plane-app   "uvicorn main:app --…"   About a minute ago   Up About a minute (healthy)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp   circuless-node
+
+Run docker exec -it CONTAINER_ID python init_db.py
+
+5. DONE
 
 ## Run development mode
 
-### Install python environment
+1. Install python environment
 
 python -m venv .venv
 source .venv/bin/activate
 
-### Libraries
+2. Install libraries
 Install from requirements.txt
 
-### Start dev env (Only app)
+3. Copy environment settings
 
-Copy .env to root, use localhost to connect to postgres
+Copy environments/.env.local to root
 
-APISIX will be skipped
+4. Init dB
 
+Run python src/init_db.py
+
+5. Start
 fastapi run src/main.py --port 3000
-
-## Run with docker
-Copy .env to app directory and replace URLs for Docker DNS names (i.e. localhost --> Postgres)
-
-### Build
-docker compose up --build
-
-### Run
-docker compose up -d
-
-### Stop
-docker compose down
 
 ## DB management
 
@@ -70,33 +81,5 @@ alembic current
 #### View migration history
 alembic history --verbose
 
-## Test
-
-### Manage test db
-
-#### Initialize test database
-python init_test_db.py
-
-#### Reset test database (drop and recreate)
-python init_test_db.py --reset
-
-#### Drop test database
-python init_test_db.py --drop
-
-### Run all tests
-pytest
-
-### Run with verbose output
-pytest -v
-
-### Run specific test file
-pytest tests/test_jsonpath_search.py
-
-### Run specific test
-pytest tests/test_jsonpath_search.py::test_search_observable_properties
-
-### Run tests matching pattern
-pytest -k "observable"
-
-### Run with coverage report
-pytest --cov=app --cov-report=html
+## Who to contact
+Jozef.Ziduliak@bavenir.eu
