@@ -13,9 +13,11 @@ services:
       - ./certificate.pem:/app/certificate.pem
     depends_on:
       - postgres
+    # networks:
+    #   circ-adapter_adpnetwork:
+    #     ipv4_address: 172.31.5.5
     networks:
-      mynetwork:
-        ipv4_address: 172.31.5.5
+      - testnetwork
     restart: unless-stopped
   
   postgres:
@@ -29,9 +31,11 @@ services:
       - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
+    # networks:
+    #   circ-adapter_adpnetwork:
+    #     ipv4_address: 172.31.5.2
     networks:
-      mynetwork:
-        ipv4_address: 172.31.5.2
+      - testnetwork
 
     # Fluent Bit Log Collector
   fluent-bit:
@@ -48,9 +52,11 @@ services:
       - LOKI_PORT=3100
     command: /fluent-bit/bin/fluent-bit -c /fluent-bit/etc/fluent-bit.yaml
     restart: unless-stopped
+    # networks:
+    #   circ-adapter_adpnetwork:
+    #     ipv4_address: 172.31.5.3
     networks:
-      mynetwork:
-        ipv4_address: 172.31.5.3
+      - testnetwork
 
   zipkin:
     image: openzipkin/zipkin-slim:latest
@@ -59,9 +65,11 @@ services:
       - "9411:9411"
     environment:
       - STORAGE_TYPE=mem
+    # networks:
+    #   circ-adapter_adpnetwork:
+    #     ipv4_address: 172.31.5.10
     networks:
-      mynetwork:
-        ipv4_address: 172.31.5.10
+      - testnetwork
 
   # valkey:
   #   image: valkey/valkey:8.1-alpine
@@ -112,28 +120,18 @@ services:
   #   #   - "2379:2379"
   #   networks:
   #     mynetwork:
-  #       ipv4_address: 172.31.5.5
-
-  # apisix-dashboard:
-  #   image: apache/apisix-dashboard:3.0.1-alpine
-  #   container_name: apisix-dashboard
-  #   depends_on:
-  #     - apisix
-  #     - etcd
-  #   volumes:
-  #     - ./apisix/dashboard_conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml:rw
-  #   ports:
-  #     - "9000:9000"
-  #   networks:
-  #     - mynetwork
+  #       ipv4_address: 172.31.5.5do
 
 networks:
-  mynetwork:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.31.5.0/24
-          gateway: 172.31.5.1
+  testnetwork: 
+    external: true
+# networks:
+#   mynetwork:
+#     driver: bridge
+#     ipam:
+#       config:
+#         - subnet: 172.31.5.0/24
+#           gateway: 172.31.5.1
 
 # volumes:
 #   pgadmin_data:

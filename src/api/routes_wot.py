@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from persistance.database import get_db
-from persistance.models_wot import ThingDescriptionCreate, ThingDescriptionResponse
+from persistance.models_wot import ThingDescriptionCreate, ThingDescriptionResponse, ThingDescription
 from persistance.crud_wot import ThingDescriptionCRUD
 
 logger = logging.getLogger(__name__)

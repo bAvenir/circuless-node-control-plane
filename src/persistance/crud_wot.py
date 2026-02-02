@@ -18,6 +18,7 @@ class ThingDescriptionCRUD:
 
         oid=uuid.uuid4()
         td=td_data
+        print(td_data)
         td['oid']=str(oid)
         db_td = ThingDescriptionDB(
             oid=oid,
